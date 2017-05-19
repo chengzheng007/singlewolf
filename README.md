@@ -1,5 +1,5 @@
 # singlewolf
-a web request package to process json body request data which write by go	
+a web request package to process json body request data which wrote by go	
 
 clone it to your local disk, enter the director and run go test, the you can use postman to send request	
 
