@@ -1,10 +1,10 @@
 package singlewolf
 
 import (
+	"context"
+	"net"
 	"net/http"
 	"time"
-	"net"
-	"context"
 )
 
 var httpServers []*http.Server
@@ -22,16 +22,31 @@ func StartServe(handler *router, addrs []string, timeout time.Duration) error {
 	httpServers = []*http.Server{}
 
 	for _, addr := range addrs {
-		l, err := net.Listen("tcp", addr)
+		var (
+			l   net.Listener
+			err error
+		)
+
+		if strings.Index(addr, ":") == -1 {
+			l, err = net.Listen("unix", addr)
+		} else {
+			l, err = net.Listen("tcp", addr)
+		}
+
+		if err != nil {
+			logf("net.Listen() addr(%s) error(%v)\n", addr, err)
+			return err
+		}
+
 		if err != nil {
 			logf("net.Listen(\"tcp\", addr) error(%v)\n", err)
 			return err
 		}
 
 		server := &http.Server{
-			Handler: handler,
-			ReadTimeout: timeout,
-			WriteTimeout: timeout,
+			Handler:        handler,
+			ReadTimeout:    timeout,
+			WriteTimeout:   timeout,
 			MaxHeaderBytes: 1 << 20,
 		}
 		httpServers = append(httpServers, server)
@@ -61,4 +76,3 @@ func Close() {
 	}
 	httpServers = []*http.Server{}
 }
-

@@ -1,13 +1,12 @@
 package singlewolf
 
-
 import (
 	"testing"
 	"time"
 )
 
 var (
-	addrs        = []string{"127.0.0.1:9088"}
+	addrs       = []string{"127.0.0.1:9088"}
 	httpTimeout = time.Second * 15
 )
 
@@ -31,10 +30,10 @@ func TestA(t *testing.T) {
 	}
 	defer Close()
 
-	for{}
+	for {
+	}
 
 }
-
 
 func hello(w *Wrapper, res Result) {
 
@@ -49,8 +48,6 @@ func hello(w *Wrapper, res Result) {
 	res["bool"] = w.Request.Params.GetBool("c")
 	res["float64"] = w.Request.Params.GetFloat64("d")
 	res["int64"] = w.Request.Params.GetInt64("e")
-
-
 
 	res["xxxxx"] = w.Request.Params.GetString("xxxxx")
 

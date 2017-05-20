@@ -1,8 +1,8 @@
 package singlewolf
 
 import (
-	"net/http"
 	"errors"
+	"net/http"
 )
 
 var ErrUriInvalid = errors.New("uri pattern error")
@@ -13,10 +13,9 @@ type HandlerFunc func(*Wrapper, Result)
 
 // route storage uri-handler pair
 type route struct {
-	pattern string      //uri to access
+	pattern string //uri to access
 	handler HandlerFunc
 }
-
 
 func NewRoute(pattern string, handler HandlerFunc) *route {
 	return &route{pattern, handler}
@@ -45,5 +44,3 @@ type Wrapper struct {
 	Request
 	ResponseWriter
 }
-
-
