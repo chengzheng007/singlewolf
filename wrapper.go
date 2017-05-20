@@ -16,10 +16,6 @@ type Result map[string]interface{}
 
 type HandlerFunc func(*Wrapper, Result)
 
-type MuxI interface {
-	MuxFunc() HandlerFunc
-}
-
 func wrapHandleFunc(handle HandlerFunc) http.HandlerFunc {
 	return func(wr http.ResponseWriter, r *http.Request) {
 		wp := &Wrapper{

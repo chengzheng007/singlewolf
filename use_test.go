@@ -49,20 +49,21 @@ func InitServerMux() (http.Handler, error) {
 		return nil, err
 	}
 
-	mux.SetMux(router)
-
-	return mux.MakeHandler(), nil
+	return mux.MakeHandler(router), nil
 }
 
 func hello(w *Wrapper, res Result) {
-	res["ret"] = "123"
+
+	// {"a":"hello","b":"abc","c":true,"d":12.34567888888,"e":1234567890}
+
+	res["ret"] = 1
 
 	res["params"] = w.Request.Params.GetAll()
 
-	res["a"] = w.Request.Params.GetString("a")
-
-	// if err := w.ResponseWriter.WriteJson(res); err != nil {
-	// 	fmt.Printf("w.ResponseWriter.WriteJson(%v) error(%v)\n", err)
-	// }
+	res["string"] = w.Request.Params.GetString("a")
+	res["bytes"] = w.Request.Params.GetBytes("b")
+	res["bool"] = w.Request.Params.GetBool("c")
+	res["float64"] = w.Request.Params.GetFloat64("d")
+	res["int64"] = w.Request.Params.GetInt64("e")
 
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type mux struct {
-	RTR MuxI
+	RTR *router
 }
 
 func NewMux() *mux {
@@ -14,17 +14,9 @@ func NewMux() *mux {
 	}
 }
 
-func (m *mux) SetMux(router MuxI) {
-	m.RTR = router
-}
+func (m *mux) MakeHandler(rt *router) http.Handler {
 
-func (m *mux) MakeHandler() http.Handler {
-	var f HandlerFunc
-	if m.RTR != nil {
-		f = m.RTR.MuxFunc()
-	} else {
-		f = func(*Wrapper, Result) {}
-	}
-
+	m.RTR = rt
+	f := m.RTR.getHandlerFunc()
 	return wrapHandleFunc(f)
 }
