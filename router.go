@@ -1,50 +1,66 @@
 package singlewolf
 
 import (
-	"errors"
 	"net/http"
+	"time"
 )
 
-type router struct {
-	RT map[string]*route
-}
-
-var ErrUriInvalid = errors.New("uri pattern error")
-
-func (r *router) getHandlerFunc() HandlerFunc {
-	return func(wp *Wrapper, res Result) {
-		path := wp.Request.URL.Path
-		if handler := r.matchPatern(path); handler != nil {
-			handler(wp, res)
-			return
-		}
-		notFoundHandle(wp.ResponseWriter, res, http.StatusNotFound)
-		return
-	}
-}
-
-func MakeRouter(routes ...*route) (*router, error) {
-
+// http.Handler
+func MakeHandler(routes ...*route) (*router, error) {
 	rtr := &router{RT: map[string]*route{}}
-	// if set same uri pattern, the latter will cover ahead
 	for _, r := range routes {
 		// uri must begin with /
 		if r.pattern == "" || r.pattern[0:1] != "/" {
-			return rtr, ErrUriInvalid
+			return nil, ErrUriInvalid
 		}
+		// uri cannot be repeat
+		if _, ok := rtr.RT[r.pattern]; ok {
+			return nil, ErrUriRepeat
+		}
+
 		rtr.RT[r.pattern] = r
 	}
 
 	return rtr, nil
 }
 
-func (r *router) matchPatern(pattern string) HandlerFunc {
-	if r.RT == nil {
-		return nil
+func (rtr *router) ServeHTTP(wr http.ResponseWriter, r *http.Request) {
+
+	path := r.URL.Path
+	if handler := rtr.matchPattern(path); handler != nil {
+		start := time.Now()
+
+		// 执行函数
+		wp := &Wrapper{
+			Request{
+				r,
+				getRequestParams(r),
+			},
+			&responseWriter{
+				wr,
+				false,
+			},
+		}
+		var res Result = make(map[string]interface{})
+		handler(wp, res)
+
+		// 回写结果
+		if err := wp.ResponseWriter.WriteJson(res); err != nil {
+			logf("wp.ResponseWriter.WriteJson(%v) error(%v)", err)
+		}
+
+		// 记录日志
+		writeLog(&wp.Request, start, res)
+		return
 	}
 
-	for k, v := range r.RT {
-		if k == v.pattern {
+	notFoundHandle(wr)
+	return
+}
+
+func (rtr *router) matchPattern(pattern string) HandlerFunc {
+	for k, v := range rtr.RT {
+		if k == pattern {
 			return v.handler
 		}
 	}

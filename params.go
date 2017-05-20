@@ -7,10 +7,6 @@ import (
 	"reflect"
 )
 
-type paramsData struct {
-	data map[string]interface{}
-}
-
 func getRequestParams(r *http.Request) paramsData {
 	params := paramsData{data: make(map[string]interface{})}
 

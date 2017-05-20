@@ -24,14 +24,6 @@ type ResponseWriter interface {
 	WriteHeader(int)
 }
 
-func notFoundHandle(w ResponseWriter, res Result, code int) {
-	w.WriteHeader(code)
-	err := w.WriteJson(res)
-	if err != nil {
-		panic(err)
-	}
-}
-
 type responseWriter struct {
 	http.ResponseWriter
 	wroteHeader bool
@@ -71,4 +63,10 @@ func (w *responseWriter) Write(v []byte) (int, error) {
 		w.WriteHeader(http.StatusOK)
 	}
 	return w.ResponseWriter.Write(v)
+}
+
+
+func notFoundHandle(w http.ResponseWriter) {
+	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	return
 }
