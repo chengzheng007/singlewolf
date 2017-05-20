@@ -43,7 +43,7 @@ func (p *paramsData) GetInt64(key string) int64 {
 	if p.data == nil {
 		return 0
 	}
-	// map interface{} 默认将数字类型设置为float64
+	// map[string]interface{}  default number type is float64
 	if v, ok := p.data[key].(float64); ok {
 		return int64(reflect.ValueOf(v).Float())
 	}
