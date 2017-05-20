@@ -13,15 +13,11 @@ var ErrUriInvalid = errors.New("uri pattern error")
 
 func (r *router) getHandlerFunc() HandlerFunc {
 	return func(wp *Wrapper, res Result) {
-		// TODO 根据请求URI匹配具体handler
-		// 遍历Router.RT
-
 		path := wp.Request.URL.Path
 		if handler := r.matchPatern(path); handler != nil {
 			handler(wp, res)
 			return
 		}
-
 		notFoundHandle(wp.ResponseWriter, res, http.StatusNotFound)
 		return
 	}
@@ -30,9 +26,9 @@ func (r *router) getHandlerFunc() HandlerFunc {
 func MakeRouter(routes ...*route) (*router, error) {
 
 	rtr := &router{RT: map[string]*route{}}
-	// 如果有相同的url后边的覆盖前面的
+	// if set same uri pattern, the latter will cover ahead
 	for _, r := range routes {
-		// uri不能为空，且必须以/开头
+		// uri must begin with /
 		if r.pattern == "" || r.pattern[0:1] != "/" {
 			return rtr, ErrUriInvalid
 		}

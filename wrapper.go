@@ -11,7 +11,7 @@ type Wrapper struct {
 	ResponseWriter
 }
 
-// 回写到前端
+// Result will be written to front end
 type Result map[string]interface{}
 
 type HandlerFunc func(*Wrapper, Result)
@@ -29,16 +29,16 @@ func wrapHandleFunc(handle HandlerFunc) http.HandlerFunc {
 			},
 		}
 
-		// 执行函数
+		// execute your request logic
 		var res Result = make(map[string]interface{})
 		handle(wp, res)
 
-		// 回写结果
+		// write back result to front end
 		if err := wp.ResponseWriter.WriteJson(res); err != nil {
 			logf("wp.ResponseWriter.WriteJson(%v) error(%v)", err)
 		}
 
-		// 记录日志
+		//  write log
 		writeLog(&wp.Request, time.Now(), res)
 	}
 }
