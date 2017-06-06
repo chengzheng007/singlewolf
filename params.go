@@ -8,7 +8,7 @@ import (
 )
 
 func getRequestParams(r *http.Request) paramsData {
-	params := paramsData{data: make(map[string]interface{})}
+	params := make(paramsData)
 
 	if r == nil {
 		return params
@@ -21,7 +21,12 @@ func getRequestParams(r *http.Request) paramsData {
 	}
 	defer r.Body.Close()
 
-	if err := json.Unmarshal(buf, &params.data); err != nil {
+	// 没传参数，无需解析
+	if len(buf) == 0 {
+		return params
+	}
+
+	if err := json.Unmarshal(buf, &params); err != nil {
 		logf("json.Unmarshal(%s, &params.data) error(%v)", buf, err)
 		return params
 	}
@@ -29,71 +34,85 @@ func getRequestParams(r *http.Request) paramsData {
 	return params
 }
 
-func (p *paramsData) GetString(key string) string {
-	if p.data == nil {
+// paramsData storage paramsters data client sent, and it ha been Json Unmarshaled to map
+type paramsData map[string]interface{}
+
+func (p paramsData) GetString(key string) string {
+	if p == nil {
 		return ""
 	}
-	if v, ok := p.data[key].(string); ok {
+	if v, ok := p[key].(string); ok {
 		return v
 	}
 	return ""
 }
 
-func (p *paramsData) GetInt64(key string) int64 {
-	if p.data == nil {
+func (p paramsData) GetInt64(key string) int64 {
+	if p == nil {
 		return 0
 	}
-	// map[string]interface{}  default number type is float64
-	if v, ok := p.data[key].(float64); ok {
-		return int64(reflect.ValueOf(v).Float())
+	// map interface{} 默认将数字类型设置为float64
+	if v, ok := p[key].(float64); ok {
+		return reflect.ValueOf(v).Int()
 	}
 	return 0
 }
 
-func (p *paramsData) GetBytes(key string) []byte {
-	if p.data == nil {
+func (p paramsData) GetBytes(key string) []byte {
+	if p == nil {
 		return []byte("")
 	}
 
-	if v, ok := p.data[key].(string); ok {
+	if v, ok := p[key].(string); ok {
 		return []byte(v)
 	}
 	return []byte("")
 }
 
-func (p *paramsData) GetBool(key string) bool {
-	if p.data == nil {
+func (p paramsData) GetBool(key string) bool {
+	if p == nil {
 		return false
 	}
 
-	if v, ok := p.data[key].(bool); ok {
+	if v, ok := p[key].(bool); ok {
 		return v
 	}
 	return false
 }
 
-func (p *paramsData) GetFloat64(key string) float64 {
-	if p.data == nil {
+func (p paramsData) GetFloat64(key string) float64 {
+	if p == nil {
 		return 0.0
 	}
 
-	if v, ok := p.data[key].(float64); ok {
+	if v, ok := p[key].(float64); ok {
 		return v
 	}
 	return 0.0
 }
 
-func (p *paramsData) GetInterface(key string) interface{} {
-	if p.data == nil {
+func (p paramsData) GetInterface(key string) interface{} {
+	if p == nil {
 		return nil
 	}
 
-	if v, ok := p.data[key]; ok {
+	if v, ok := p[key]; ok {
 		return v
 	}
 	return nil
 }
 
-func (p *paramsData) GetAll() map[string]interface{} {
-	return p.data
+func (p paramsData) GetInterfaces(key string) []interface{} {
+	if p == nil {
+		return nil
+	}
+
+	if v, ok := p[key].([]interface{}); ok {
+		return v
+	}
+	return nil
+}
+
+func (p paramsData) GetAll() map[string]interface{} {
+	return p
 }

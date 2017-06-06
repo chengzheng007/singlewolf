@@ -2,6 +2,7 @@ package singlewolf
 
 import (
 	"log"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -10,6 +11,7 @@ var (
 	errorLog *log.Logger
 )
 
+// SetErrorLog 用于配置日志输出
 func SetErrorLog(err *log.Logger) {
 	errorLog = err
 }
@@ -23,10 +25,9 @@ func logf(format string, args ...interface{}) {
 }
 
 func writeLog(r *Request, start time.Time, res Result) {
-	ip := getRealIp(r)
+	ip := getRealIP(r.Header)
 	hs := time.Now().Sub(start)
 	ret, _ := res["ret"]
-
 	if r.Method == "GET" {
 		logf("[%s]get_url:%s(params:%v,time:%fms,ret:%v)", ip, r.URL.Path, r.Params.GetAll(), hs.Seconds()*1000, ret)
 	} else {
@@ -35,15 +36,14 @@ func writeLog(r *Request, start time.Time, res Result) {
 
 }
 
-// getRealIp get real ip.
-func getRealIp(r *Request) string {
-	ip := r.Request.Header.Get("X-Real-IP")
+func getRealIP(header http.Header) string {
+	ip := header.Get("X-Real-IP")
 	if ip != "" {
 		return ip
 	}
-	remote := r.Request.Header.Get("X-Forwarded-For")
+	remote := header.Get("X-Forwarded-For")
 	if remote == "" {
-		return r.Request.Header.Get("X-Real-IP")
+		return header.Get("X-Real-IP")
 	}
 	idx := strings.LastIndex(remote, ",")
 	if idx > -1 {

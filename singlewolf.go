@@ -5,38 +5,28 @@ import (
 	"net/http"
 )
 
-var ErrUriInvalid = errors.New("uri pattern error")
-var ErrUriRepeat = errors.New("uri is repeat")
+/**
+孤狼: 专门用于解析简单的json body体请求
+只允许post方式提交
+*/
 
-// function type to process your business
+var (
+	// ErrURIInvalid is patten 错误
+	ErrURIInvalid = errors.New("uri pattern error")
+	// ErrURIRepeat is repeat 错误
+	ErrURIRepeat = errors.New("uri is repeat")
+)
+
+// HandlerFunc function type to process your business
 type HandlerFunc func(*Wrapper, Result)
 
-// route storage uri-handler pair
-type route struct {
-	pattern string //uri to access
-	handler HandlerFunc
-}
-
-func NewRoute(pattern string, handler HandlerFunc) *route {
-	return &route{pattern, handler}
-}
-
-// router implement http.ServeHTTP, it get corresponding handler and process client request
-type router struct {
-	RT map[string]*route
-}
-
-// paramsData storage paramsters data client sent, and it ha been Json Unmarshaled to map
-type paramsData struct {
-	data map[string]interface{}
-}
-
+// Request is 返回信息
 type Request struct {
 	*http.Request
 	Params paramsData
 }
 
-// write back to front end
+// Result write back to front end
 type Result map[string]interface{}
 
 // Wrapper wrap request and response,
