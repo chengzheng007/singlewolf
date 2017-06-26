@@ -70,4 +70,6 @@ func hello(w *Wrapper, res Result) {
 
 	res["not_exist"] = w.Request.Params.GetString("not_exist")
 
+	// already get request parameters, so you can process logic next
+	// ...
 }
