@@ -11,7 +11,6 @@ type Route struct {
 	handler HandlerFunc
 }
 
-// NewRoute is
 func NewRoute(pattern string, handler HandlerFunc) *Route {
 	return &Route{pattern, handler}
 }
@@ -19,6 +18,7 @@ func NewRoute(pattern string, handler HandlerFunc) *Route {
 // Router implement http.ServeHTTP, it get corresponding handler and process client request
 type Router map[string]*Route
 
+// matchPattern found handler user registered
 func (rtr Router) matchPattern(pattern string) HandlerFunc {
 	if v, ok := rtr[pattern]; ok {
 		return v.handler
@@ -53,7 +53,7 @@ func (rtr Router) ServeHTTP(wr http.ResponseWriter, r *http.Request) {
 	if handler := rtr.matchPattern(path); handler != nil {
 		start := time.Now()
 
-		// 执行函数
+		// exec specific handler to process your application logic
 		wp := &Wrapper{
 			Request{
 				r,
@@ -67,16 +67,17 @@ func (rtr Router) ServeHTTP(wr http.ResponseWriter, r *http.Request) {
 		var res Result = make(map[string]interface{})
 		handler(wp, res)
 
-		// 回写结果
+		// write back result to client
 		if err := wp.ResponseWriter.WriteJSON(res); err != nil {
 			logf("wp.ResponseWriter.WriteJSON(%v) error(%v)", res, err)
 		}
 
-		// 记录日志
+		// print log
 		writeLog(&wp.Request, start, res)
 		return
 	}
 
+	// if no hanler found, return 404
 	notFoundHandle(wr)
 	return
 }

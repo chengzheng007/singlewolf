@@ -5,15 +5,16 @@ import (
 	"net/http"
 )
 
-/**
-孤狼: 专门用于解析简单的json body体请求
-只允许post方式提交
-*/
+// singlewolf: a json body request processor, it only allow post request
+// this package can be used in some scenes like: client serialize all data
+// to json to request web API, for example the mobile app Android and IOS.
+// They all have similar request way: a raw string data, so we can process
+// them in an uniform way
 
 var (
-	// ErrURIInvalid is patten 错误
+	// ErrURIInvalid imply uri is invalid, uri should be not empty with a leading "/"
 	ErrURIInvalid = errors.New("uri pattern error")
-	// ErrURIRepeat is repeat 错误
+	// ErrURIRepeat imply there has been registered a same pattern
 	ErrURIRepeat = errors.New("uri is repeat")
 )
 

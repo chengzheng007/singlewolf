@@ -11,7 +11,7 @@ var (
 	errorLog *log.Logger
 )
 
-// SetErrorLog 用于配置日志输出
+// SetErrorLog set logger to print
 func SetErrorLog(err *log.Logger) {
 	errorLog = err
 }
@@ -24,6 +24,7 @@ func logf(format string, args ...interface{}) {
 	}
 }
 
+// writeLog do record client request info
 func writeLog(r *Request, start time.Time, res Result) {
 	ip := getRealIP(r.Header)
 	hs := time.Now().Sub(start)
@@ -36,6 +37,7 @@ func writeLog(r *Request, start time.Time, res Result) {
 
 }
 
+// getRealIP do get remote client ip
 func getRealIP(header http.Header) string {
 	ip := header.Get("X-Real-IP")
 	if ip != "" {

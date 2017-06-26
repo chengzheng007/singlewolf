@@ -48,6 +48,7 @@ func StartServe(handler Router, addrs []string, timeout time.Duration) error {
 		}
 		httpServers = append(httpServers, server)
 
+		// start listening ip:port
 		go func(srv *http.Server, listener net.Listener) {
 			logf("start http listen addr: %s", addr)
 			if err := srv.Serve(listener); err != nil {
@@ -63,7 +64,7 @@ func StartServe(handler Router, addrs []string, timeout time.Duration) error {
 	return nil
 }
 
-// Close is close serve
+// Close do close serve
 func Close() {
 	for _, s := range httpServers {
 		ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
